@@ -32,6 +32,12 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
 from tensorflow.keras.callbacks import ModelCheckpoint
+from scipy.optimize import curve_fit
+
+# The detail of the Transformer block can be fount in the paper:
+#A. Vaswani, N. Shazeer, N. Parmar, J. Uszkoreit, L. Jones, A. N. Gomez, Ł. Kaiser and
+#I. Polosukhin, Attention is all you need, Adv. Neural Inf. Process. Syst. 30, 5998–6008
+#(2017), doi:10.48550/arXiv.1706.03762
 # ========================== set env ========================
 
 tensorflow.config.experimental_run_functions_eagerly(True)
@@ -41,8 +47,8 @@ tensorflow.config.experimental_run_functions_eagerly(True)
 step = 10
 
 # make training set
-data_X = np.load('./data/train_spin.npy')[:,:,:step] # the shape of raw x is (number of samples, number of series, number of step), we only take the first 10 step
-data_Y = np.load('./data/train_T.npy')
+data_X = np.load('./data/train spin.npy')[:,:,:step] # the shape of raw x is (number of samples, number of series, number of step), we only take the first 10 step
+data_Y = np.load('./data/train T.npy')
 
 X = []
 Y = []
@@ -63,8 +69,8 @@ T_train = np.array(T)
 
 
 # make testing set
-data_X = np.load('./data/test_spin.npy')[:,:,:step]
-data_Y = np.load('./data/test_T.npy')
+data_X = np.load('./data/test spin.npy')[:,:,:step]
+data_Y = np.load('./data/test T.npy')
 
 X = []
 Y = []
@@ -72,7 +78,7 @@ T = []
 for i in trange(len(data_Y)):
     X.append(data_X[i])
     T.append(data_Y[i])
-    if data_Y[i] >= 4:
+    if data_Y[i] >= 2.27:
         Y.append(1)
     else:
         Y.append(0)
@@ -89,11 +95,7 @@ print(X_test.shape)
 
 
 
-def Conv2d_BN(x, nb_filter, kernel_size, strides=(1,1), padding='same'):
-    x = Conv2D(nb_filter, kernel_size, strides=strides, padding=padding, kernel_initializer='he_normal')(x)
-    x = BatchNormalization(axis=3)(x)
-    x = LeakyReLU()(x)
-    return x
+
 
 
 def slice(x,index):
@@ -142,7 +144,7 @@ class TokenAndPositionEmbedding(layers.Layer):
     
 vocab_size = 10  # Only consider the top 20k words
 maxlen = step  # Only consider the first 200 words of each movie review
-embed_dim = 32  # Embedding size for each token
+embed_dim = 8  # Embedding size for each token
 num_heads = 2  # Number of attention heads
 ff_dim = 32  # Hidden layer size in feed forward network inside transformer
 embedding_layer = TokenAndPositionEmbedding(maxlen, vocab_size, embed_dim)
@@ -274,10 +276,10 @@ model.compile(optimizer=Adam(lr=1e-3), loss='binary_crossentropy', metrics=['acc
 checkpoint = ModelCheckpoint(filepath='trans.h5', monitor='val_acc', mode='auto' ,save_best_only='True')
 # ========================== train model ========================
 
-history = model.fit(X_train, Y_train, batch_size=64, epochs=10, verbose=1, validation_data = (X_test,Y_test), shuffle = True, callbacks=[checkpoint])
+history = model.fit(X_train, Y_train, batch_size=128, epochs=5, verbose=1, validation_data = (X_test,Y_test), shuffle = True, callbacks=[checkpoint])
 
 
-# ========================== recard data ========================
+# ========================== record data ========================
 model.load_weights('trans.h5')
 
 
@@ -288,6 +290,9 @@ np.save('./Transformer result/trans_predict.npy', pre)
 np.save('./Transformer result/trans_T.npy', T_test)
 
 
+
+
+# calculate the average output values of each T
 T_ = [round(i,1) for i in T_test]
 Y = []
 P = []
@@ -306,6 +311,13 @@ P = np.array(P)
 c = np.array(c)
 P = P/c
 
+# fit the output by a tanh like function
+def TanhFitting(v,a,b,c,d):
+    return (a * np.tanh((b * v) + c) + d)
+pars, cov = curve_fit(TanhFitting,Y,P,maxfev=100000)
+T = np.arange(0, 5.05, 0.05)
+Tanh_fit = TanhFitting(T, pars[0], pars[1], pars[2], pars[3])
+plt.plot(T, Tanh_fit, label='tanh fit')
 
 
 plt.figure(1)
@@ -318,7 +330,6 @@ plt.legend()
 
 plt.savefig('./Transformer result/figure.png', dpi=150)
 plt.show()
-plt.clf()
 plt.close()
 
 tensorflow.keras.backend.clear_session()
