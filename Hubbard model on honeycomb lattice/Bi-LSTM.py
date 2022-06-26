@@ -45,8 +45,12 @@ tensorflow.config.experimental_run_functions_eagerly(True)
 step = 10
 
 # make training set
-data_X = np.load('./data/train_G.npy')[:,:,:step] # the shape of raw x is (number of samples, number of series, number of step), we only take the first 10 step
-data_Y = np.load('./data/train_U.npy')
+x1 = np.load('./data/G00_0-2.npy')
+x2 = np.load('./data/G00_6-8.npy')
+data_X = np.concatenate((x1,x2),axis=0)
+y1 = np.load('./data/U_0-2.npy')
+y2 = np.load('./data/U_6-8.npy')
+data_Y = np.concatenate((y1,y2),axis=0)
 
 X = []
 Y = []
@@ -67,8 +71,8 @@ T_train = np.array(T)
 
 
 # make testing set
-data_X = np.load('./data/test_G.npy')[:,:,:step]
-data_Y = np.load('./data/test_U.npy')
+data_X = np.load('./data/G00_GT.npy')[:,:,:step]
+data_Y = np.load('./data/U_GT.npy')
 
 X = []
 Y = []
@@ -121,26 +125,26 @@ x17 = Lambda(slice,arguments={'index':17})(input_layer)
 x18 = Lambda(slice,arguments={'index':18})(input_layer)
 x19 = Lambda(slice,arguments={'index':19})(input_layer)
 
-x0 = Bidirectional(LSTM(50, return_sequences = False, activation='tanh', kernel_initializer='he_normal'))(x0)
-x1 = Bidirectional(LSTM(50, return_sequences = False, activation='tanh', kernel_initializer='he_normal'))(x1)
-x2 = Bidirectional(LSTM(50, return_sequences = False, activation='tanh', kernel_initializer='he_normal'))(x2)
-x3 = Bidirectional(LSTM(50, return_sequences = False, activation='tanh', kernel_initializer='he_normal'))(x3)
-x4 = Bidirectional(LSTM(50, return_sequences = False, activation='tanh', kernel_initializer='he_normal'))(x4)
-x5 = Bidirectional(LSTM(50, return_sequences = False, activation='tanh', kernel_initializer='he_normal'))(x5)
-x6 = Bidirectional(LSTM(50, return_sequences = False, activation='tanh', kernel_initializer='he_normal'))(x6)
-x7 = Bidirectional(LSTM(50, return_sequences = False, activation='tanh', kernel_initializer='he_normal'))(x7)
-x8 = Bidirectional(LSTM(50, return_sequences = False, activation='tanh', kernel_initializer='he_normal'))(x8)
-x9 = Bidirectional(LSTM(50, return_sequences = False, activation='tanh', kernel_initializer='he_normal'))(x9)
-x10 = Bidirectional(LSTM(50, return_sequences = False, activation='tanh', kernel_initializer='he_normal'))(x10)
-x11 = Bidirectional(LSTM(50, return_sequences = False, activation='tanh', kernel_initializer='he_normal'))(x11)
-x12 = Bidirectional(LSTM(50, return_sequences = False, activation='tanh', kernel_initializer='he_normal'))(x12)
-x13 = Bidirectional(LSTM(50, return_sequences = False, activation='tanh', kernel_initializer='he_normal'))(x13)
-x14 = Bidirectional(LSTM(50, return_sequences = False, activation='tanh', kernel_initializer='he_normal'))(x14)
-x15 = Bidirectional(LSTM(50, return_sequences = False, activation='tanh', kernel_initializer='he_normal'))(x15)
-x16 = Bidirectional(LSTM(50, return_sequences = False, activation='tanh', kernel_initializer='he_normal'))(x16)
-x17 = Bidirectional(LSTM(50, return_sequences = False, activation='tanh', kernel_initializer='he_normal'))(x17)
-x18 = Bidirectional(LSTM(50, return_sequences = False, activation='tanh', kernel_initializer='he_normal'))(x18)
-x19 = Bidirectional(LSTM(50, return_sequences = False, activation='tanh', kernel_initializer='he_normal'))(x19)
+x0 = Bidirectional(LSTM(16, return_sequences = False, activation='tanh', kernel_initializer='he_normal'))(x0)
+x1 = Bidirectional(LSTM(16, return_sequences = False, activation='tanh', kernel_initializer='he_normal'))(x1)
+x2 = Bidirectional(LSTM(16, return_sequences = False, activation='tanh', kernel_initializer='he_normal'))(x2)
+x3 = Bidirectional(LSTM(16, return_sequences = False, activation='tanh', kernel_initializer='he_normal'))(x3)
+x4 = Bidirectional(LSTM(16, return_sequences = False, activation='tanh', kernel_initializer='he_normal'))(x4)
+x5 = Bidirectional(LSTM(16, return_sequences = False, activation='tanh', kernel_initializer='he_normal'))(x5)
+x6 = Bidirectional(LSTM(16, return_sequences = False, activation='tanh', kernel_initializer='he_normal'))(x6)
+x7 = Bidirectional(LSTM(16, return_sequences = False, activation='tanh', kernel_initializer='he_normal'))(x7)
+x8 = Bidirectional(LSTM(16, return_sequences = False, activation='tanh', kernel_initializer='he_normal'))(x8)
+x9 = Bidirectional(LSTM(16, return_sequences = False, activation='tanh', kernel_initializer='he_normal'))(x9)
+x10 = Bidirectional(LSTM(16, return_sequences = False, activation='tanh', kernel_initializer='he_normal'))(x10)
+x11 = Bidirectional(LSTM(16, return_sequences = False, activation='tanh', kernel_initializer='he_normal'))(x11)
+x12 = Bidirectional(LSTM(16, return_sequences = False, activation='tanh', kernel_initializer='he_normal'))(x12)
+x13 = Bidirectional(LSTM(16, return_sequences = False, activation='tanh', kernel_initializer='he_normal'))(x13)
+x14 = Bidirectional(LSTM(16, return_sequences = False, activation='tanh', kernel_initializer='he_normal'))(x14)
+x15 = Bidirectional(LSTM(16, return_sequences = False, activation='tanh', kernel_initializer='he_normal'))(x15)
+x16 = Bidirectional(LSTM(16, return_sequences = False, activation='tanh', kernel_initializer='he_normal'))(x16)
+x17 = Bidirectional(LSTM(16, return_sequences = False, activation='tanh', kernel_initializer='he_normal'))(x17)
+x18 = Bidirectional(LSTM(16, return_sequences = False, activation='tanh', kernel_initializer='he_normal'))(x18)
+x19 = Bidirectional(LSTM(16, return_sequences = False, activation='tanh', kernel_initializer='he_normal'))(x19)
 
 x = Concatenate(axis=-1)([x0,x1])
 x = Concatenate(axis=-1)([x,x2])
@@ -165,9 +169,9 @@ x = Concatenate(axis=-1)([x,x19])
 x = Flatten()(x)
 
 x = Dense(64, activation='relu', kernel_initializer='he_normal')(x)
-#x = Dropout(0.1)(x)
+x = Dropout(0.1)(x)
 x = Dense(64, activation='relu', kernel_initializer='he_normal')(x)
-#x = Dropout(0.1)(x)
+x = Dropout(0.1)(x)
 
 output_layer = Dense(1, activation='sigmoid', kernel_initializer='he_normal')(x)
 
@@ -178,7 +182,7 @@ model.compile(optimizer=Adam(lr=1e-3), loss='binary_crossentropy', metrics=['acc
 checkpoint = ModelCheckpoint(filepath='lstm.h5', monitor='val_acc', mode='auto' ,save_best_only='True')
 # ========================== train model ========================
 
-history = model.fit(X_train, Y_train, batch_size=32, epochs=5, verbose=1, validation_data = (X_test,Y_test), shuffle = True, callbacks=[checkpoint])
+history = model.fit(X_train, Y_train, batch_size=128, epochs=3, verbose=1, validation_data = (X_test,Y_test), shuffle = True, callbacks=[checkpoint])
 
 # ========================== recard data ========================
 model.load_weights('lstm.h5')
@@ -212,7 +216,7 @@ P = P/c
 plt.figure(1)
 plt.scatter(Y, P, color='blue',marker='x',s=30,label='predicted prob')
 plt.plot([3.9,3.9],[0,1],label='Uc = 3.9', color='red')
-plt.xlabel('T/J')
+plt.xlabel('U')
 plt.ylabel('Bi-LSTM output')
 plt.title('Bi-LSTM')
 plt.legend()      
