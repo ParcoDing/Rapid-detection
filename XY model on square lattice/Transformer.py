@@ -41,8 +41,17 @@ tensorflow.config.experimental_run_functions_eagerly(True)
 step = 10
 
 # make training set
-data_X = np.load('./data/train_spin.npy')[:,:,:step] # the shape of raw x is (number of samples, number of series, number of step), we only take the first 10 step
-data_Y = np.load('./data/train_T.npy')
+# the shape of raw x is (number of samples, number of series, number of step), we only take the first 10 step
+#data_X = np.load('./data/train_spin.npy')[:,:,:step] 
+#data_Y = np.load('./data/train_T.npy')
+x1 = np.load('./data/spin_0-0.05.npy')
+x2 = np.load('./data/spin_1.5-2.npy')
+data_X = np.concatenate((x1,x2),axis=0)
+y1 = np.load('./data/T_0-0.05.npy')
+y2 = np.load('./data/T_1.5-2.npy')
+data_Y = np.concatenate((y1,y2),axis=0)
+
+
 
 X = []
 Y = []
@@ -63,8 +72,8 @@ T_train = np.array(T)
 
 
 # make testing set
-data_X = np.load('./data/test_spin.npy')[:,:,:step]
-data_Y = np.load('./data/test_T.npy')
+data_X = np.load('./data/spin_GT.npy')[:,:,:step]
+data_Y = np.load('./data/T_GT.npy')
 
 X = []
 Y = []
@@ -89,11 +98,7 @@ print(X_test.shape)
         
 
 
-def Conv2d_BN(x, nb_filter, kernel_size, strides=(1,1), padding='same'):
-    x = Conv2D(nb_filter, kernel_size, strides=strides, padding=padding, kernel_initializer='he_normal')(x)
-    x = BatchNormalization(axis=3)(x)
-    x = LeakyReLU()(x)
-    return x
+
 
 
 def slice(x,index):
@@ -140,10 +145,10 @@ class TokenAndPositionEmbedding(layers.Layer):
         base_config = super(TokenAndPositionEmbedding, self).get_config()
         return dict(list(base_config.items()) + list(config.items()))
     
-vocab_size = 1000  # Only consider the top 20k words
+vocab_size = 100  # Only consider the top 20k words
 maxlen = step  # Only consider the first 200 words of each movie review
 embed_dim = 32  # Embedding size for each token
-num_heads = 8  # Number of attention heads
+num_heads = 4  # Number of attention heads
 ff_dim = 32  # Hidden layer size in feed forward network inside transformer
 embedding_layer = TokenAndPositionEmbedding(maxlen, vocab_size, embed_dim)
 transformer_block = TransformerBlock(embed_dim, num_heads, ff_dim)
@@ -274,9 +279,9 @@ model.compile(optimizer=Adam(lr=1e-3), loss='binary_crossentropy', metrics=['acc
 checkpoint = ModelCheckpoint(filepath='trans.h5', monitor='val_acc', mode='auto' ,save_best_only='True')
 # ========================== train model ========================
 
-history = model.fit(X_train, Y_train, batch_size=32, epochs=20, verbose=1, validation_data = (X_test,Y_test), shuffle = True, callbacks=[checkpoint])
+history = model.fit(X_train, Y_train, batch_size=128, epochs=3, verbose=1, validation_data = (X_test,Y_test), shuffle = True, callbacks=[checkpoint])
 
-# ========================== recard data ========================
+# ========================== record data ========================
 model.load_weights('trans.h5')
 
 pre = model.predict(X_test)
@@ -284,7 +289,7 @@ pre = pre.flatten()
 
 np.save('./Transformer result/trans_predict.npy', pre)
 np.save('./Transformer result/trans_T.npy', T_test)
-
+# calculate the average output values of each T
 T_ = [round(i,1) for i in T_test]
 Y = []
 P = []
