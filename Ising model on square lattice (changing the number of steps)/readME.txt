@@ -1,0 +1,1 @@
+the raw data used to be fitted by the tanh like function can be found in the xxx.rar files.
